@@ -109,6 +109,34 @@ class CircleLineTapMoveView(ctx : Context) : View(ctx) {
             }
         }
     }
+    data class Renderer(var view : CircleLineTapMoveView, var time : Int = 0) {
+        var circleTapMove : CircleLineTapMove ?= null
+        val animator = Animator(view)
+        fun render(canvas : Canvas, paint : Paint) {
+            if (time == 0) {
+                val w = canvas.width.toFloat()
+                val h = canvas.height.toFloat()
+                val size = Math.min(w, h)/15
+                circleTapMove = CircleLineTapMove(w/2, h/2, size)
+                paint.color = Color.parseColor("#FF9800")
+                paint.strokeWidth = size/3
+                paint.strokeCap = Paint.Cap.ROUND
+            }
+            canvas.drawColor(Color.parseColor("#212121"))
+            circleTapMove?.draw(canvas, paint)
+            time++
+            animator.animate {
+                circleTapMove?.update {
+                    animator.stop()
+                }
+            }
+        }
+        fun handleTap(x : Float, y : Float) {
+            circleTapMove?.startUpdating(x, y) {
+                animator.start()
+            }
+        }
+    }
 }
 fun Canvas.drawLinePoint(point1 : PointF, point2 : PointF, paint : Paint) {
     drawLine(point1.x, point1.y, point2.x, point2.y, paint)
