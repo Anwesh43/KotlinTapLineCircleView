@@ -75,10 +75,7 @@ class CircleLineTapMoveView(ctx : Context) : View(ctx) {
         val state = State()
         fun draw(canvas : Canvas, paint : Paint) {
             paint.style = Paint.Style.STROKE
-            canvas.save()
-            canvas.translate(x, y)
-            canvas.drawArc(RectF(-r, -r, r, r), deg + 360 * state.scales[0], 360f * (1 - state.scales[0]), false, paint)
-            canvas.restore()
+            canvas.drawDegArc(x, y, r, deg + 360 * state.scales[0], 360f * (1 - state.scales[0]), paint)
             val len = (2 * Math.PI * r).toFloat()
             val x_projection = Math.cos(deg * Math.PI / 180).toFloat()
             val y_projection = Math.sin(deg * Math.PI / 180).toFloat()
@@ -92,10 +89,7 @@ class CircleLineTapMoveView(ctx : Context) : View(ctx) {
             val point1 = getUpdatedPoint(1)
             val point2 = getUpdatedPoint(0)
             canvas.drawLinePoint(point1, point2, paint)
-            canvas.save()
-            canvas.translate(x1, y1)
-            canvas.drawArc(RectF(-r, -r , r, r), (180 + deg), 360f * state.scales[1], false, paint)
-            canvas.restore()
+            canvas.drawDegArc(x1, y1, r, 180 + deg, 360f * state.scales[1], paint)
         }
         fun update(stopcb : () -> Unit) {
             state.update {
@@ -151,4 +145,21 @@ class CircleLineTapMoveView(ctx : Context) : View(ctx) {
 }
 fun Canvas.drawLinePoint(point1 : PointF, point2 : PointF, paint : Paint) {
     drawLine(point1.x, point1.y, point2.x, point2.y, paint)
+}
+fun Canvas.drawDegArc(x : Float, y : Float, r : Float, start : Float, sweep : Float, paint : Paint) {
+    save()
+    translate(x, y)
+    val path = Path()
+    for(i in start.toInt()..(start + sweep).toInt()) {
+        val px = r * Math.cos(i * Math.PI/180).toFloat()
+        val py = r * Math.sin(i * Math.PI/180).toFloat()
+        if(i == start.toInt()) {
+            path.moveTo(px, py)
+        }
+        else {
+            path.lineTo(px, py)
+        }
+    }
+    drawPath(path, paint)
+    restore()
 }
