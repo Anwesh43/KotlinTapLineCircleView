@@ -9,18 +9,18 @@ class AngleUtils {
             if(x1 == x) {
                 return 90f
             }
-            var deg = Math.atan( (y1 - y).toDouble() / (x1 - x)).toFloat()
+            var deg = (Math.atan((y1 - y).toDouble() / (x1 - x)) * 180 / Math.PI).toFloat()
             if(y1 < y) {
                 if(x1 < x) {
                     return 180 + deg
                 }
                 else {
-                    return 360 - deg
+                    return 360 - Math.abs(deg)
                 }
             }
             else {
                 if(x1 < x) {
-                    return 180 - deg
+                    return 180 - Math.abs(deg)
                 }
             }
             return deg

@@ -7,6 +7,7 @@ import android.app.Activity
 import android.graphics.*
 import android.view.*
 import android.content.*
+import android.util.Log
 
 class CircleLineTapMoveView(ctx : Context) : View(ctx) {
     val paint : Paint = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -28,18 +29,18 @@ class CircleLineTapMoveView(ctx : Context) : View(ctx) {
         fun update(stopcb : () -> Unit) {
             scales[j] += 0.1f * dir
             if(Math.abs(scales[j]) > 1) {
-                scales[j] =  dir
+                scales[j] =  1f
                 j++
                 if(j == scales.size) {
                     j = 0
                     dir = 0f
+                    scales = arrayOf(0f, 0f)
                     stopcb()
                 }
             }
         }
         fun startUpdating(startcb : () -> Unit) {
             if(dir == 0f) {
-                scales = arrayOf(0f, 0f)
                 dir = 1f
                 startcb()
             }
@@ -76,14 +77,14 @@ class CircleLineTapMoveView(ctx : Context) : View(ctx) {
             paint.style = Paint.Style.STROKE
             canvas.save()
             canvas.translate(x, y)
-            canvas.drawArc(RectF(-r, -r, r, r), deg * state.scales[0], 360f * (1 - state.scales[0]), false, paint)
+            canvas.drawArc(RectF(-r, -r, r, r), deg + 360 * state.scales[0], 360f * (1 - state.scales[0]), false, paint)
             canvas.restore()
             val len = (2 * Math.PI * r).toFloat()
             val x_projection = Math.cos(deg * Math.PI / 180).toFloat()
             val y_projection = Math.sin(deg * Math.PI / 180).toFloat()
             val x1 = x + x_projection * (len + 2 * r)
             val y1 = y + y_projection * (len + 2 * r)
-            val sx = x+ x_projection * r
+            val sx = x  + x_projection * r
             val sy = y + y_projection * r
             val dx = x + x_projection *  (len + r)
             val dy = y + y_projection * (len +  r)
@@ -93,7 +94,7 @@ class CircleLineTapMoveView(ctx : Context) : View(ctx) {
             canvas.drawLinePoint(point1, point2, paint)
             canvas.save()
             canvas.translate(x1, y1)
-            canvas.drawArc(RectF(-r, -r , r, r), (180 - deg), 360f * state.scales[0], false, paint)
+            canvas.drawArc(RectF(-r, -r , r, r), (180 + deg), 360f * state.scales[1], false, paint)
             canvas.restore()
         }
         fun update(stopcb : () -> Unit) {
@@ -105,8 +106,9 @@ class CircleLineTapMoveView(ctx : Context) : View(ctx) {
             }
         }
         fun startUpdating(x:Float, y: Float, startcb : () -> Unit) {
-            if(state.dir == 0f) {
+            state.startUpdating {
                 deg = AngleUtils.getAngle(this.x, this.y, x, y)
+                Log.d("deg","$deg")
                 startcb()
             }
         }
