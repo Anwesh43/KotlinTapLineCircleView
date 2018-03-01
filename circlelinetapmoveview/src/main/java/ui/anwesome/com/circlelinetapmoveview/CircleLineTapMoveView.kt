@@ -68,4 +68,40 @@ class CircleLineTapMoveView(ctx : Context) : View(ctx) {
             }
         }
     }
+    data class CircleLineTapMove(var x : Float, var y : Float, var r : Float , var deg : Float = 0f, var sx : Float = x, var sy : Float = y,var dx : Float = x, var dy : Float = y, var x1 : Float = x, var y1 : Float = y) {
+        val state = State()
+        fun draw(canvas : Canvas, paint : Paint) {
+            paint.style = Paint.Style.STROKE
+            canvas.save()
+            canvas.translate(x, y)
+            canvas.drawArc(RectF(-r, -r, r, r), deg * state.scales[0], 360f * (1 - state.scales[0]), false, paint)
+            canvas.restore()
+            val getUpdatedPoint : (Int) -> PointF = { PointF(sx + (dx - sx) * state.scales[it], sy + (dy - sy) * state.scales[it]) }
+
+            canvas.save()
+            canvas.translate(x1, y1)
+            canvas.drawArc(RectF(-r, -r , r, r), (180 - deg), 360f * state.scales[0], false, paint)
+            canvas.restore()
+        }
+        fun update(stopcb : () -> Unit) {
+            state.update(stopcb)
+        }
+        fun startUpdating(x:Float, y: Float, startcb : () -> Unit) {
+            if(state.dir == 0f) {
+                deg = AngleUtils.getAngle(this.x, this.y, x, y)
+                val x_projection = Math.cos(deg * Math.PI / 180).toFloat()
+                val y_projection = Math.sin(deg * Math.PI / 180).toFloat()
+                x1 = x + x_projection * (2 * Math.PI * r + 2 * r).toFloat()
+                y1 = y + y_projection * (2 * Math.PI * r + 2 * r).toFloat()
+                sx = x+ x_projection * r
+                sy = y + y_projection * r
+                dx = x + x_projection *  (2 * Math.PI * r + r).toFloat()
+                dy = y + y_projection * (2 * Math.PI * r +  r).toFloat()
+                startcb()
+            }
+        }
+    }
+}
+fun Canvas.drawLinePoint(point1 : PointF, point2 : PointF, paint : Paint) {
+    drawLine(point1.x, point1.y, point2.x, point2.y, paint)
 }
