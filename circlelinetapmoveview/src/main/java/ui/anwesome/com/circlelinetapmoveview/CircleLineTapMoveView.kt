@@ -143,7 +143,7 @@ class CircleLineTapMoveView(ctx : Context) : View(ctx) {
         fun create(activity : Activity) : CircleLineTapMoveView {
             val view = CircleLineTapMoveView(activity)
             activity.setContentView(view)
-            return view 
+            return view
         }
     }
 }
