@@ -3,6 +3,7 @@ package ui.anwesome.com.circlelinetapmoveview
 /**
  * Created by anweshmishra on 01/03/18.
  */
+import android.app.Activity
 import android.graphics.*
 import android.view.*
 import android.content.*
@@ -136,6 +137,13 @@ class CircleLineTapMoveView(ctx : Context) : View(ctx) {
             circleTapMove?.startUpdating(x, y) {
                 animator.start()
             }
+        }
+    }
+    companion object {
+        fun create(activity : Activity) : CircleLineTapMoveView {
+            val view = CircleLineTapMoveView(activity)
+            activity.setContentView(view)
+            return view 
         }
     }
 }
