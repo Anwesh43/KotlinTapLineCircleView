@@ -12,6 +12,10 @@ import android.util.Log
 class CircleLineTapMoveView(ctx : Context) : View(ctx) {
     val paint : Paint = Paint(Paint.ANTI_ALIAS_FLAG)
     val renderer = Renderer(this)
+    var onCircleMoveListener : OnCircleMoveListener ?= null
+    fun addOnCircleMoveListener(onMoveListener : (PointF, PointF) -> Unit) {
+        onCircleMoveListener = OnCircleMoveListener(onMoveListener)
+    }
     override fun onDraw(canvas : Canvas) {
         renderer.render(canvas, paint)
     }
@@ -95,12 +99,14 @@ class CircleLineTapMoveView(ctx : Context) : View(ctx) {
             paint.style = Paint.Style.FILL
             canvas.drawCircle(x1, y1, r * (state.scales[0] - state.scales[1]), paint)
         }
-        fun update(stopcb : () -> Unit) {
+        fun update(stopcb : (PointF, PointF) -> Unit) {
             state.update {
+                val x1 = x
+                val y1 = y
                 x += ((2 * Math.PI * r + 2 * r) * Math.cos(this.deg * Math.PI/180)).toFloat()
                 y += ((2 * Math.PI * r + 2 * r) * Math.sin(this.deg * Math.PI/180)).toFloat()
                 this.deg = 0f
-                stopcb()
+                stopcb(PointF(x1, y1), PointF(x, y))
             }
         }
         fun startUpdating(x:Float, y: Float, startcb : () -> Unit) {
@@ -127,8 +133,9 @@ class CircleLineTapMoveView(ctx : Context) : View(ctx) {
             circleTapMove?.draw(canvas, paint)
             time++
             animator.animate {
-                circleTapMove?.update {
+                circleTapMove?.update {point1, point2 ->
                     animator.stop()
+                    view.onCircleMoveListener?.onMoveListener?.invoke(point1, point2)
                 }
             }
         }
@@ -145,6 +152,7 @@ class CircleLineTapMoveView(ctx : Context) : View(ctx) {
             return view
         }
     }
+    data class OnCircleMoveListener(var onMoveListener : (PointF, PointF) -> Unit)
 }
 fun Canvas.drawLinePoint(point1 : PointF, point2 : PointF, paint : Paint) {
     drawLine(point1.x, point1.y, point2.x, point2.y, paint)
