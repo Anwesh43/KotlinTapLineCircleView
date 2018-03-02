@@ -75,6 +75,7 @@ class CircleLineTapMoveView(ctx : Context) : View(ctx) {
         val state = State()
         fun draw(canvas : Canvas, paint : Paint) {
             paint.style = Paint.Style.STROKE
+            paint.color = Color.parseColor("#FF9800")
             canvas.drawDegArc(x, y, r, deg + 360 * state.scales[0], 360f * (1 - state.scales[0]), paint)
             val len = (2 * Math.PI * r).toFloat()
             val x_projection = Math.cos(deg * Math.PI / 180).toFloat()
@@ -90,6 +91,9 @@ class CircleLineTapMoveView(ctx : Context) : View(ctx) {
             val point2 = getUpdatedPoint(0)
             canvas.drawLinePoint(point1, point2, paint)
             canvas.drawDegArc(x1, y1, r, 180 + deg, 360f * state.scales[1], paint)
+            paint.color = Color.parseColor("#55FFEB3B")
+            paint.style = Paint.Style.FILL
+            canvas.drawCircle(x1, y1, r * (state.scales[0] - state.scales[1]), paint)
         }
         fun update(stopcb : () -> Unit) {
             state.update {
@@ -116,7 +120,6 @@ class CircleLineTapMoveView(ctx : Context) : View(ctx) {
                 val h = canvas.height.toFloat()
                 val size = Math.min(w, h)/15
                 circleTapMove = CircleLineTapMove(w/2, h/2, size)
-                paint.color = Color.parseColor("#FF9800")
                 paint.strokeWidth = size/3
                 paint.strokeCap = Paint.Cap.ROUND
             }
